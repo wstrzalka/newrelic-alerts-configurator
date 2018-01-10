@@ -78,12 +78,16 @@ public class ApmJvmCondition implements Condition {
     }
 
     @Override
+    public String getGcMetricAsString() {
+        return gcMetric.metricData;
+    }
+    @Override
     public String getViolationCloseTimerAsString() {
         return violationCloseTimer == null ? null : violationCloseTimer.getDuration();
     }
 
     public enum Metric {
-        DEADLOCKED_THREADS, HEAP_MEMORY_USAGE, CPU_UTILIZATION_TIME
+        DEADLOCKED_THREADS, HEAP_MEMORY_USAGE, CPU_UTILIZATION_TIME, GC_CPU_TIME
     }
 
     public enum GcMetric {

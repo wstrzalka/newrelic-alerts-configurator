@@ -86,4 +86,13 @@ public class ApmJvmCondition implements Condition {
         DEADLOCKED_THREADS, HEAP_MEMORY_USAGE, CPU_UTILIZATION_TIME
     }
 
+    public enum GcMetric {
+        GC_MARK_SWEEP("GC/PS MarkSweep");
+
+        private String metricData;
+
+        GcMetric(String metricData) {
+            this.metricData = metricData;
+        }
+    }
 }

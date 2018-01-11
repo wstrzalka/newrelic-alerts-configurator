@@ -77,10 +77,12 @@ public class ApmJvmCondition implements Condition {
         return metric.name().toLowerCase();
     }
 
+
     @Override
     public String getGcMetricAsString() {
         return gcMetric == null ? null : gcMetric.metricData;
     }
+
     @Override
     public String getViolationCloseTimerAsString() {
         return violationCloseTimer == null ? null : violationCloseTimer.getDuration();

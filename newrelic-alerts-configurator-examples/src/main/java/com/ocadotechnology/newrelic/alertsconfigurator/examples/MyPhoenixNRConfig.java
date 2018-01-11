@@ -3,6 +3,8 @@ package com.ocadotechnology.newrelic.alertsconfigurator.examples;
 import com.ocadotechnology.newrelic.alertsconfigurator.Configurator;
 import com.ocadotechnology.newrelic.alertsconfigurator.configuration.ApplicationConfiguration;
 import com.ocadotechnology.newrelic.alertsconfigurator.configuration.PolicyConfiguration;
+import com.ocadotechnology.newrelic.alertsconfigurator.configuration.channel.Channel;
+import com.ocadotechnology.newrelic.alertsconfigurator.configuration.channel.SlackChannel;
 import com.ocadotechnology.newrelic.alertsconfigurator.configuration.condition.*;
 import com.ocadotechnology.newrelic.alertsconfigurator.configuration.condition.nrql.NrqlCondition;
 import com.ocadotechnology.newrelic.alertsconfigurator.configuration.condition.nrql.NrqlConfiguration;
@@ -18,8 +20,8 @@ import static com.ocadotechnology.newrelic.alertsconfigurator.configuration.cond
 
 public class MyPhoenixNRConfig {
 
-    public static final String DEV_API_KEY = "d0b3226882780f6ba1d43e2fc8d2580e";
-    public static final String APPLICATION_NAME = "phoenixcore:andover";
+    private static final String DEV_API_KEY = "d0b3226882780f6ba1d43e2fc8d2580e";
+    private static final String APPLICATION_NAME = "phoenixcore:andover";
 
     public static void main(String[] args) {
 
@@ -36,19 +38,20 @@ public class MyPhoenixNRConfig {
 
         Configurator configurator = new Configurator(apiKey);
         configurator.setApplicationConfigurations(ImmutableList.of(applicationConfig));
-        configurator.setPolicyConfigurations(ImmutableList.of(applicationConfiguration(applicationName, "dbcore03", "dbcore04")));
+        configurator.setPolicyConfigurations(ImmutableList.of(applicationConfiguration(applicationName, "dbcore03", "dbcore04", "Test policy for phoenix core from DSL")));
         configurator.sync();
     }
 
 
 
-    public static PolicyConfiguration applicationConfiguration(String applicationName, String postgresHost1, String postgresHost2) {
+    private static PolicyConfiguration applicationConfiguration(String applicationName, String postgresHost1, String postgresHost2, String policyName) {
         //Note: NRQL Baseline conditions are not available.
 
         List<Condition> conditions = ImmutableList.of(
                 diskSpaceForHost(postgresHost1),
                 diskSpaceForHost(postgresHost2),
                 gcTime(applicationName),
+                errorPercentage(applicationName),
                 pendingContainerMoveBundles("NON_FOOD_INDUCT_ZONE", 1000f, applicationName),
                 pendingContainerMoveBundles("FREEZER_SCANNING_RIG_ZONE", 1000f, applicationName),
                 pendingContainerMoveBundles("FREEZER_LOGICAL_ZONE", 1000f, applicationName),
@@ -64,10 +67,10 @@ public class MyPhoenixNRConfig {
                 pendingContainerMoveBundles("AMBIENT_DECANT_ZONE", 1000f, applicationName),
                 pendingTaskBundles("FREEZER_ZONE", 2000f, applicationName),
                 pendingTaskBundles("FRAME_LOADING_ZONE", 2000f, applicationName),
-                pendingTaskBundles("DISPATCH_ZONE", 1000f, applicationName),
+                pendingTaskBundles("DISPATCH_ZONE", 2000f, applicationName),
                 pendingTaskBundles("AMBIENT_DECANT_ZONE", 3000f, applicationName),
                 pendingTaskBundles("CHILL_DECANT_ZONE", 3000f, applicationName),
-                pendingContainerMoveBundles("DISPATCH_ZONE", 2000f, applicationName),
+                pendingContainerMoveBundles("DISPATCH_ZONE", 1000f, applicationName),
                 pendingTaskBundles("AMBIENT_RAINBOW_ZONE", 4000f, applicationName),
                 pendingTaskBundles("CHILL_RAINBOW_ZONE", 4000f, applicationName),
                 pendingContainerMoveBundles("FREEZER_ZONE", 2000f, applicationName));
@@ -93,13 +96,21 @@ public class MyPhoenixNRConfig {
 
 
         return PolicyConfiguration.builder()
-                .policyName("Test policy for phoenix core from DSL")
+                .policyName(policyName)
                 .incidentPreference(PolicyConfiguration.IncidentPreference.PER_POLICY)
                 .condition(Defaults.apdexCondition(applicationName))
                 .conditions(conditions)
                 .nrqlConditions(nrqlConditions)
-                .channel(Defaults.teamEmailChannel())
-                .channel(Defaults.slackChannel())
+                .channel(slackChannel())
+                .build();
+    }
+
+
+    public static Channel slackChannel() {
+        return SlackChannel.builder()
+                .channelName("Phoenix core alerts slack channel")
+                .slackUrl("https://hooks.slack.com/services/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")
+                .teamChannel("#phoenix-core-alerts")
                 .build();
     }
 

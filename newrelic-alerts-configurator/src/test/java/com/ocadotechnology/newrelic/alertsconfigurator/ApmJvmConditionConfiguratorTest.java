@@ -105,8 +105,8 @@ public class ApmJvmConditionConfiguratorTest extends AbstractConfiguratorTest {
                 .enabled(ENABLED)
                 .application(APPLICATION_NAME)
                 .term(TERMS_CONFIGURATION)
-                .metric(ApmJvmCondition.Metric.HEAP_MEMORY_USAGE)
                 .violationCloseTimer(ViolationCloseTimer.DURATION_24)
+                .metric(ApmJvmCondition.Metric.GC_CPU_TIME)
                 .gcMetric(ApmJvmCondition.GcMetric.GC_MARK_SWEEP)
                 .build();
     }
